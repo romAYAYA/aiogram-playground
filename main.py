@@ -1,24 +1,17 @@
 import os
 from aiogram import Bot, Dispatcher, executor, types
 from dotenv import load_dotenv
-from aiogram.types import (
-    ReplyKeyboardMarkup,
-    InlineKeyboardMarkup,
-    InlineKeyboardButton,
-)
+from app import keyboards as kb
+from app import database as db
 
 load_dotenv()
 bot = Bot(os.getenv("TOKEN"))
 dp = Dispatcher(bot=bot)
 
-main = ReplyKeyboardMarkup(resize_keyboard=True)
-main.add("Menu").add("Cart").add("Donate")
 
-main_admin = ReplyKeyboardMarkup(resize_keyboard=True)
-main_admin.add("Menu").add("Cart").add("Donate").add("Admin")
-
-admin_panel = ReplyKeyboardMarkup(resize_keyboard=True)
-admin_panel.add("Add item").add("Delete item").add("Mail")
+async def on_startup(_):
+    await db.db_start()
+    print('Bot activated')
 
 
 @dp.message_handler(commands=["start"])
@@ -28,23 +21,17 @@ async def cmd_start(message: types.Message):
         "CAACAgIAAxkBAAMVZKVO9Twjk_6m39R8Nm50KHkWJhsAAoUAA8GcYAyLjB0fSFNdIi8E"
     )
     await message.answer(
-        f"Welcome to the club, {message.from_user.first_name}!", reply_markup=main
+        f"Welcome to the club, {message.from_user.first_name}!", reply_markup=kb.main
     )
 
     if message.from_user.id == int(os.getenv("ADMIN_ID")):
-        await message.answer("You entered admin mode", reply_markup=main_admin)
+        await message.answer("You entered admin mode", reply_markup=kb.main_admin)
 
 
-@dp.message_handler(text="Donate")
-async def get_donation_info(message: types.Message):
-    """Sends info for donation"""
-    await message.answer("Kaspi: +7055166184")
-
-
-@dp.message_handler(text="Menu")
-async def get_menu(message: types.Message):
+@dp.message_handler(text="Tickets")
+async def get_tickets(message: types.Message):
     """Shows menu"""
-    await message.answer("Sorry, anything left")
+    await message.answer("Sorry, anything left", reply_markup=kb.tickets_list)
 
 
 @dp.message_handler(text="Cart")
@@ -57,20 +44,12 @@ async def get_cart(message: types.Message):
 async def get_admin_panel(message: types.Message):
     """Shows admin panel"""
     if message.from_user.id == int(os.getenv("ADMIN_ID")):
-        await message.answer("You entered admin mode", reply_markup=admin_panel)
+        await message.answer("You entered admin mode", reply_markup=kb.admin_panel)
     else:
         await message.answer_sticker(
             "CAACAgIAAxkBAAMiZKVStZZorGto_KnKzvCGd0-nerQAAhYAAzed7hJaF5ONGLk2Qi8E"
         )
         await message.answer("Can't get you, brother")
-
-
-@dp.message_handler(content_types=["document", "photo"])
-async def forward_message(message: types.Message):
-    """Forwards photos and documents"""
-    await bot.forward_message(
-        os.getenv("GROUP_ID"), message.from_user.id, message.message_id
-    )
 
 
 @dp.message_handler()
@@ -83,4 +62,4 @@ async def unknown_answer(message: types.Message):
 
 
 if __name__ == "__main__":
-    executor.start_polling(dp)
+    executor.start_polling(dp, on_startup=on_startup)
