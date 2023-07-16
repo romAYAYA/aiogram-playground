@@ -17,6 +17,7 @@ async def on_startup(_):
 @dp.message_handler(commands=["start"])
 async def cmd_start(message: types.Message):
     """Starts the bot"""
+    await db.cmd_start_db(message.from_user.id)
     await message.answer_sticker(
         "CAACAgIAAxkBAAMVZKVO9Twjk_6m39R8Nm50KHkWJhsAAoUAA8GcYAyLjB0fSFNdIi8E"
     )
@@ -61,5 +62,15 @@ async def unknown_answer(message: types.Message):
     await message.answer("Can't get you, brother")
 
 
+@dp.callback_query_handler()
+async def callback_query_keyboard(callback_query: types.CallbackQuery):
+    if callback_query.data == 'Astana-Almaty':
+        await bot.send_message(chat_id=callback_query.from_user.id, text='You bocked ticket from Astana to Almaty')
+    elif callback_query.data == 'Toronto-Tokyo':
+        await bot.send_message(chat_id=callback_query.from_user.id, text='You bocked ticket from Toronto to Tokyo')
+    elif callback_query.data == 'Kiev-Berlin':
+        await bot.send_message(chat_id=callback_query.from_user.id, text='You bocked ticket from Kiev to Berlin')
+
+
 if __name__ == "__main__":
-    executor.start_polling(dp, on_startup=on_startup)
+    executor.start_polling(dp, on_startup=on_startup, skip_updates=True)

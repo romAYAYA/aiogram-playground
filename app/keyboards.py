@@ -15,7 +15,7 @@ admin_panel.add("Add item").add("Delete item").add("Mail")
 
 tickets_list = InlineKeyboardMarkup(row_width=2)
 tickets_list.add(
-    InlineKeyboardButton(text="Astana-Almaty", url="https://chat.openai.com/"),
-    InlineKeyboardButton(text="Toronto-Tokyo", url="https://chat.openai.com/"),
-    InlineKeyboardButton(text="Kiev-Berlin", url="https://chat.openai.com/"),
+    InlineKeyboardButton(text="Astana-Almaty", callback_data='Astana-Almaty'),
+    InlineKeyboardButton(text="Toronto-Tokyo", callback_data='Toronto-Tokyo'),
+    InlineKeyboardButton(text="Kiev-Berlin", callback_data="Kiev-Berlin"),
 )
